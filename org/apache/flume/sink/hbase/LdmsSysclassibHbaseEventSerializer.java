@@ -121,7 +121,7 @@ public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer 
 
 	    String hostName = clusterName + String.format("%05d", Integer.parseInt(payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME]));
 	    
-	    rowKey = ("ldms-" + sourceType + "-" + clusterName + "-" + hostName + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
+	    rowKey = ("ldms-" + sourceType + "-" + clusterName + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
 
 	    for (int i = 0; i < ibcards; i++) {
 		byte[] ibcard = Integer.toString(ibcards - i - 1).getBytes(Charsets.UTF_8);
