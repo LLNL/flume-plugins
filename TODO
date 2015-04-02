@@ -1,0 +1,5 @@
+move common stuff to common ldms
+use node's local time, not local time on hbase node
+
+test at scale on catalyst
+make sure not dropping events
