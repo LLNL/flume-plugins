@@ -119,7 +119,7 @@ public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer 
 
 	    int ibcards = (payloadSplits.length - LDMSSYSCLASSIBINDEXSTART) / LDMSSYSCLASSIBCOLUMNS.length;
 
-	    String hostName = clusterName + payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME];
+	    String hostName = clusterName + String.format("%05d", Integer.parseInt(payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME]));
 	    
 	    rowKey = ("ldms-" + clusterName + "-" + hostName + "-" + sourceType + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
 

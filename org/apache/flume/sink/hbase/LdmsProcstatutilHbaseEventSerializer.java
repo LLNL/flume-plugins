@@ -105,7 +105,7 @@ public class LdmsProcstatutilHbaseEventSerializer implements HbaseEventSerialize
 
 	    int numcpus = (payloadSplits.length - LDMSPROCSTATUTILINDEXSTART) / LDMSPROCSTATUTILCOLUMNS.length;
 
-	    String hostName = clusterName + payloadSplits[LDMSPROCSTATUTILINDEXHOSTNAME];
+	    String hostName = clusterName + String.format("%05d", Integer.parseInt(payloadSplits[LDMSPROCSTATUTILINDEXHOSTNAME]));
 	    
 	    rowKey = ("ldms-" + clusterName + "-" + hostName + "-" + sourceType + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
 

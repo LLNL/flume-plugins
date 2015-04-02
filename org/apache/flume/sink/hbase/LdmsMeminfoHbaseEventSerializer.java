@@ -134,7 +134,7 @@ public class LdmsMeminfoHbaseEventSerializer implements HbaseEventSerializer {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
 	    }
 
-	    String hostName = clusterName + payloadSplits[LDMSMEMINFOINDEXHOSTNAME];
+	    String hostName = clusterName + String.format("%05d", Integer.parseInt(payloadSplits[LDMSMEMINFOINDEXHOSTNAME]));
 	    
 	    rowKey = ("ldms-" + clusterName + "-" + hostName + "-" + sourceType + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
 
