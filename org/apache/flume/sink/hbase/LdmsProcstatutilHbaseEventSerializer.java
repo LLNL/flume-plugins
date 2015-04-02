@@ -110,7 +110,7 @@ public class LdmsProcstatutilHbaseEventSerializer implements HbaseEventSerialize
 	    rowKey = ("ldms-" + clusterName + "-" + hostName + "-" + sourceType + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
 
 	    for (int i = 0; i < numcpus; i++) {
-		byte[] cpunum = Integer.toString(numcpus - i - 1).getBytes(Charsets.UTF_8);
+		byte[] cpunum = String.format("%02d", numcpus - i - 1).getBytes(Charsets.UTF_8);
 
 		for (int j = 0; j < LDMSPROCSTATUTILCOLUMNS.length; j++) {
 		    Put put = new Put(rowKey);
