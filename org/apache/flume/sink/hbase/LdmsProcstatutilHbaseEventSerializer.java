@@ -107,7 +107,7 @@ public class LdmsProcstatutilHbaseEventSerializer implements HbaseEventSerialize
 
 	    String hostName = clusterName + String.format("%05d", Integer.parseInt(payloadSplits[LDMSPROCSTATUTILINDEXHOSTNAME]));
 	    
-	    rowKey = ("ldms-" + clusterName + "-" + hostName + "-" + sourceType + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
+	    rowKey = ("ldms-" + sourceType + "-" + clusterName + "-" + hostName + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
 
 	    for (int i = 0; i < numcpus; i++) {
 		byte[] cpunum = String.format("%02d", numcpus - i - 1).getBytes(Charsets.UTF_8);
