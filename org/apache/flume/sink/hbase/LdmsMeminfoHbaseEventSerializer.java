@@ -136,7 +136,7 @@ public class LdmsMeminfoHbaseEventSerializer implements HbaseEventSerializer {
 
 	    String hostName = clusterName + String.format("%05d", Integer.parseInt(payloadSplits[LDMSMEMINFOINDEXHOSTNAME]));
 	    
-	    rowKey = ("ldms-" + sourceType + "-" + clusterName + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
+	    rowKey = ("ldms-" + sourceType + "-" + clusterName + "-" + String.valueOf(System.currentTimeMillis()) + "-" + hostName) .getBytes("UTF8");
 
 	    for (int i = 0; i < LDMSMEMINFOCOLUMNS.length; i++) {
 		Put put = new Put(rowKey);
