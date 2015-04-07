@@ -22,6 +22,7 @@ public class LdmsMeminfoHbaseEventSerializer extends LdmsHbaseEventSerializer {
     // Only for columsn we're going to store, we don't use some
     // Sorta ugly, but avoid constant byte conversions later
 
+    final static private int LDMSMEMINFOINDEXTIME = 0;
     final static private int LDMSMEMINFOINDEXHOSTNAME = 2;
     final static private int LDMSMEMINFOINDEXSTART = 3;
 
@@ -92,9 +93,8 @@ public class LdmsMeminfoHbaseEventSerializer extends LdmsHbaseEventSerializer {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
 	    }
 
-	    String hostName = calcHostname(payloadSplits[LDMSMEMINFOINDEXHOSTNAME]);
-	    
-	    byte[] rowKey = calcRowkey(hostName, String.valueOf(System.currentTimeMillis()));
+	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMSMEMINFOINDEXHOSTNAME]),
+				       calcTimestamp(payloadSplits[LDMSMEMINFOINDEXTIME]));
 
 	    for (int i = 0; i < LDMSMEMINFOCOLUMNS.length; i++) {
 		Put put = new Put(rowKey);

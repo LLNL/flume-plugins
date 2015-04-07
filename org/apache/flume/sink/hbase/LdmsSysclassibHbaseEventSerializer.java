@@ -20,6 +20,7 @@ public class LdmsSysclassibHbaseEventSerializer extends LdmsHbaseEventSerializer
     // Only for columsn we're going to store, we don't use some
     // Sorta ugly, but avoid constant byte conversions later
 
+    final static private int LDMSSYSCLASSIBINDEXTIME = 0;
     final static private int LDMSSYSCLASSIBINDEXHOSTNAME = 2;
     final static private int LDMSSYSCLASSIBINDEXSTART = 3;
 
@@ -77,9 +78,8 @@ public class LdmsSysclassibHbaseEventSerializer extends LdmsHbaseEventSerializer
 
 	    int ibcards = (payloadSplits.length - LDMSSYSCLASSIBINDEXSTART) / LDMSSYSCLASSIBCOLUMNS.length;
 
-	    String hostName = calcHostname(payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME]);
-	    
-	    byte[] rowKey = calcRowkey(hostName, String.valueOf(System.currentTimeMillis()));
+	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME]),
+				       calcTimestamp(payloadSplits[LDMSSYSCLASSIBINDEXTIME]));
 
 	    for (int i = 0; i < ibcards; i++) {
 		byte[] ibcard = Integer.toString(ibcards - i - 1).getBytes(Charsets.UTF_8);

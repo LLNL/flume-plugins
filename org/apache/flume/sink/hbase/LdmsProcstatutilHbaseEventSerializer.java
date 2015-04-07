@@ -21,6 +21,7 @@ public class LdmsProcstatutilHbaseEventSerializer extends LdmsHbaseEventSerializ
     // Only for columsn we're going to store, we don't use some
     // Sorta ugly, but avoid constant byte conversions later
 
+    final static private int LDMSPROCSTATUTILINDEXTIME = 0;
     final static private int LDMSPROCSTATUTILINDEXHOSTNAME = 2;
     final static private int LDMSPROCSTATUTILINDEXSTART = 3;
 
@@ -63,9 +64,8 @@ public class LdmsProcstatutilHbaseEventSerializer extends LdmsHbaseEventSerializ
 
 	    int numcpus = (payloadSplits.length - LDMSPROCSTATUTILINDEXSTART) / LDMSPROCSTATUTILCOLUMNS.length;
 
-	    String hostName = calcHostname(payloadSplits[LDMSPROCSTATUTILINDEXHOSTNAME]);
-	    
-	    byte[] rowKey = calcRowkey(hostName, String.valueOf(System.currentTimeMillis()));
+	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMSPROCSTATUTILINDEXHOSTNAME]),
+				       calcTimestamp(payloadSplits[LDMSPROCSTATUTILINDEXTIME]));
 
 	    for (int i = 0; i < numcpus; i++) {
 		byte[] cpunum = String.format("%02d", numcpus - i - 1).getBytes(Charsets.UTF_8);

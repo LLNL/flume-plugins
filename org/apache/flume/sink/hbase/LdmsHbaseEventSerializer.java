@@ -98,6 +98,11 @@ public class LdmsHbaseEventSerializer implements HbaseEventSerializer {
 	return (clusterName + String.format("%05d", Integer.parseInt(hostNameInt)));
     }
 
+    protected String calcTimestamp(String timestamp) throws IOException {
+	String[] ts = timestamp.split("\\.");
+	return (ts[0]);
+    }
+
     protected byte[] calcRowkey(String hostName, String time) throws IOException {
 	return ("ldms-" + this.sourceType + "-" + this.clusterName + "-" + time + "-" + hostName).getBytes("UTF8");
     }
