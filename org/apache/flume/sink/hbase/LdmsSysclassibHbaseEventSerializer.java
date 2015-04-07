@@ -2,28 +2,14 @@ package org.apache.flume.sink.hbase;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.flume.Context;
-import org.apache.flume.Event;
 import org.apache.flume.FlumeException;
-import org.apache.flume.conf.ComponentConfiguration;
-import org.apache.hadoop.hbase.client.Increment;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 
 import com.google.common.base.Charsets;
 
-public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer {
-    final static String clusterNameKey = "clustername";
-    final static String sourceTypeKey = "sourcetype";
-
-    private String clusterName;
-    private String sourceType;
-
-    private byte[] columnFamily;
-    private byte[] payload;
-
+public class LdmsSysclassibHbaseEventSerializer extends LdmsHbaseEventSerializer {
     /*
       LDMS Sysclassib Fields
 
@@ -62,41 +48,13 @@ public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer 
 	"LdmsSysclassib-ib.symbol_error-".getBytes(Charsets.UTF_8),
     };
 
-    public LdmsSysclassibHbaseEventSerializer(){
+    public LdmsSysclassibHbaseEventSerializer() {
 
-    }
-
-    @Override
-    public void configure(Context context) {
-    }
-
-    @Override
-    public void configure(ComponentConfiguration conf) {
-    }
-
-    @Override
-    public void initialize(Event event, byte[] columnFamily) throws FlumeException {
-	this.payload = event.getBody();
-	this.columnFamily = columnFamily;
-
-	Map<String,String> headers = event.getHeaders();
-
-	if (!headers.containsKey(clusterNameKey)) {
-	    throw new FlumeException("Event does not contain header '" + clusterNameKey + "'");
-	}
-
-	if (!headers.containsKey(sourceTypeKey)) {
-	    throw new FlumeException("Event does not contain header '" + sourceTypeKey + "'");
-	}
-
-	clusterName = headers.get(clusterNameKey);
-	sourceType = headers.get(sourceTypeKey);
     }
 
     @Override
     public List<Row> getActions() throws FlumeException {
 	List<Row> actions = new LinkedList<Row>();
-	byte[] rowKey;
 
 	// Small chance this is the header
 	if (this.payload[0] == '#') {
@@ -104,7 +62,7 @@ public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer 
 	}
 
 	try {
-	    String payloadStr = new String(payload, "UTF-8");
+	    String payloadStr = new String(this.payload, "UTF-8");
 	    String[] payloadSplits = payloadStr.split(", ");
 
 	    if (!(payloadSplits.length >= LDMSSYSCLASSIBINDEXSTART)) {
@@ -119,9 +77,9 @@ public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer 
 
 	    int ibcards = (payloadSplits.length - LDMSSYSCLASSIBINDEXSTART) / LDMSSYSCLASSIBCOLUMNS.length;
 
-	    String hostName = clusterName + String.format("%05d", Integer.parseInt(payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME]));
+	    String hostName = calcHostname(payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME]);
 	    
-	    rowKey = ("ldms-" + sourceType + "-" + clusterName + "-" + String.valueOf(System.currentTimeMillis()) + "-" + hostName) .getBytes("UTF8");
+	    byte[] rowKey = calcRowkey(hostName, String.valueOf(System.currentTimeMillis()));
 
 	    for (int i = 0; i < ibcards; i++) {
 		byte[] ibcard = Integer.toString(ibcards - i - 1).getBytes(Charsets.UTF_8);
@@ -135,7 +93,7 @@ public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer 
 		    byte[] col = new byte[LDMSSYSCLASSIBCOLUMNS[j].length + ibcard.length];
 		    System.arraycopy(LDMSSYSCLASSIBCOLUMNS[j], 0, col, 0, LDMSSYSCLASSIBCOLUMNS[j].length);
 		    System.arraycopy(ibcard, 0, col, LDMSSYSCLASSIBCOLUMNS[j].length, ibcard.length);
-		    put.add(columnFamily, col, val);
+		    put.add(this.columnFamily, col, val);
 		    actions.add(put);
 		}
 	    }
@@ -144,15 +102,5 @@ public class LdmsSysclassibHbaseEventSerializer implements HbaseEventSerializer 
 	}
 	    
 	return actions;
-    }
-    
-    @Override
-    public List<Increment> getIncrements(){
-	List<Increment> incs = new LinkedList<Increment>();
-	return incs;
-    }
-
-    @Override
-    public void close() {
     }
 }
