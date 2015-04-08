@@ -62,7 +62,6 @@ public class LdmsHbaseEventSerializer implements HbaseEventSerializer {
     @Override
     public List<Row> getActions() throws FlumeException {
 	List<Row> actions = new LinkedList<Row>();
-	byte[] rowKey;
 
 	// Small chance this is the header
 	if (payload[0] == '#') {
@@ -70,7 +69,7 @@ public class LdmsHbaseEventSerializer implements HbaseEventSerializer {
 	}
 
 	try {
-	    rowKey = ("ldms-" + this.sourceType + "-" + this.clusterName + "-" + String.valueOf(System.currentTimeMillis())) .getBytes("UTF8");
+	    byte[] rowKey = calcRowkey();
 
 	    Put put = new Put(rowKey);
 
@@ -105,5 +104,13 @@ public class LdmsHbaseEventSerializer implements HbaseEventSerializer {
 
     protected byte[] calcRowkey(String hostName, String time) throws IOException {
 	return ("ldms-" + this.sourceType + "-" + this.clusterName + "-" + time + "-" + hostName).getBytes("UTF8");
+    }
+
+    protected byte[] calcRowkey(String time) throws IOException {
+	return ("ldms-" + this.sourceType + "-" + this.clusterName + "-" + time).getBytes("UTF8");
+    }
+
+    protected byte[] calcRowkey() throws IOException {
+	return ("ldms-" + this.sourceType + "-" + this.clusterName + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
     }
 }
