@@ -1,4 +1,4 @@
-FLUME_VERSION = 1.0.0
+FLUME_VERSION = $(shell perl -ne 'print,exit if s/^\s*VERSION:\s*(\S*).*/\1/i' META)
 
 LDMS_HBASE_SINK_FILES = \
 	org/apache/flume/sink/hbase/LdmsHbaseEventSerializer.java \
@@ -9,6 +9,7 @@ LDMS_HBASE_SINK_FILES = \
 LDMS_HBASE_SINK_JAR = LdmsHbaseEventSerializer.jar
 
 EXTRA_DIST = \
+	META \
 	Makefile \
 	flume-plugins.spec
 
