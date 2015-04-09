@@ -26,15 +26,15 @@ public class LdmsProcstatutilHbaseEventSerializer extends LdmsHbaseEventSerializ
     final static private int LDMSPROCSTATUTILINDEXSTART = 3;
 
     final static private byte[][] LDMSPROCSTATUTILCOLUMNS = {
-	"LdmsProcstatutil-guest-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-steal-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-softirq-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-irq-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-iowait-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-idle-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-sys-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-nice-".getBytes(Charsets.UTF_8),
-	"LdmsProcstatutil-user-".getBytes(Charsets.UTF_8),
+	"guest-".getBytes(Charsets.UTF_8),
+	"steal-".getBytes(Charsets.UTF_8),
+	"softirq-".getBytes(Charsets.UTF_8),
+	"irq-".getBytes(Charsets.UTF_8),
+	"iowait-".getBytes(Charsets.UTF_8),
+	"idle-".getBytes(Charsets.UTF_8),
+	"sys-".getBytes(Charsets.UTF_8),
+	"nice-".getBytes(Charsets.UTF_8),
+	"user-".getBytes(Charsets.UTF_8),
     };
 
     public LdmsProcstatutilHbaseEventSerializer() {
