@@ -1,5 +1,5 @@
 Name:           	flume-plugins
-Version:        	1.0.0
+Version:        	1.0.1
 Release:        	1%{?dist}
 Summary:        	Apache Flume Plugins
 
@@ -15,7 +15,7 @@ Requires:       	java >= 1:1.6.0
 Requires:       	flume_2_2_4_2_2
 Requires:       	hbase_2_2_0_0_2041
 
-%define flumeplugindir  /usr/lib/flume/plugins.d
+%define flumeplugindir  /usr/hdp/2.2.4.2-2/flume/plugins.d
 
 %description
 This package includes a collection of plugins for Apache Flume.

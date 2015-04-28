@@ -20,7 +20,7 @@ DIST_FILES = \
 all: ldms
 
 ldms:
-	javac -classpath "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/g/g0/achu/flume/apache-flume-1.5.2-bin/lib/*" $(LDMS_HBASE_SINK_FILES)
+	javac -classpath "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/usr/hdp/2.2.4.2-2/flume/lib/*" $(LDMS_HBASE_SINK_FILES)
 	jar -cf $(LDMS_HBASE_SINK_JAR) org/apache/flume/sink/hbase/Ldms*.class
 
 dist:
@@ -30,8 +30,8 @@ dist:
 	tar -czvf flume-plugins-$(FLUME_VERSION).tar.gz flume-plugins-$(FLUME_VERSION)
 
 install:
-	mkdir -p $(DESTDIR)/usr/lib/flume/plugins.d/ldms-sink/
-	cp $(LDMS_HBASE_SINK_JAR) $(DESTDIR)/usr/lib/flume/plugins.d/ldms-sink
+	mkdir -p $(DESTDIR)/usr/hdp/2.2.4.2-2/flume/plugins.d/ldms-sink/
+	cp $(LDMS_HBASE_SINK_JAR) $(DESTDIR)/usr/hdp/2.2.4.2-2/flume/plugins.d/ldms-sink
 
 clean:
 	rm *.jar
