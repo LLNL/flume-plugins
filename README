@@ -1,0 +1,43 @@
+LDMS Hbase Sink Plugins
+
+Presently supporting
+
+/tmp/ldms/store/node/meminfo
+/tmp/ldms/store/node/procstatutil
+/tmp/ldms/store/node/sysclassib
+
+Row keys are presently defined as
+
+ldms-<sourcetype>-<clustername>-<timestamp>-<hostname>
+
+where sourcetype would be an identifier for the LDMS source, such as
+"meminfo".
+
+The source would be configured like so (using ldms meminfo as an example):
+
+a1.sources.r1.type = exec
+a1.sources.r1.command = tail -F /tmp/ldms/store/node/meminfo
+a1.sources.r1.channels = c1
+a1.sources.r1.interceptors = i1 i2
+a1.sources.r1.interceptors.i1.type = static
+a1.sources.r1.interceptors.i1.key = clustername
+a1.sources.r1.interceptors.i1.value = <the cluster name>
+a1.sources.r1.interceptors.i2.type = static
+a1.sources.r1.interceptors.i2.key = sourcetype
+a1.sources.r1.interceptors.i2.value = <ldms sourcetype>
+
+and the sink would be configured as (again, using meminfo as an example)
+
+a1.sinks.k1.type = hbase
+a1.sinks.k1.channel = c1
+a1.sinks.k1.table = <your table name>
+a1.sinks.k1.columnFamily = <your column family>
+a1.sinks.k1.serializer = org.apache.flume.sink.hbase.LdmsMeminfoHbaseEventSerializer
+
+remember that the table name and column family must be configured in
+Hbase before hand, such as with something like the following in the
+Hbase shell.
+
+create 'mytable', {NAME => 'columnfamily1'}, {NAME => 'columnfamily2'}
+
+
