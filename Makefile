@@ -1,12 +1,14 @@
 FLUME_VERSION = $(shell perl -ne 'print,exit if s/^\s*VERSION:\s*(\S*).*/\1/i' META)
 
-LDMS_HBASE_SINK_FILES = \
+HBASE_SINK_FILES = \
 	org/apache/flume/sink/hbase/LdmsHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsMeminfoHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsProcstatutilHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsSysclassibHbaseEventSerializer.java
 
-LDMS_HBASE_SINK_JAR = LdmsHbaseEventSerializer.jar
+HBASE_SINK_JAR = HbaseEventSerializer.jar
+
+HBASE_SINK_INSTALL_DIR = /usr/hdp/2.2.4.2-2/flume/plugins.d/hbase-sink/
 
 EXTRA_DIST = \
 	META \
@@ -14,14 +16,14 @@ EXTRA_DIST = \
 	flume-plugins.spec
 
 DIST_FILES = \
-	$(LDMS_HBASE_SINK_FILES) \
+	$(HBASE_SINK_FILES) \
 	$(EXTRA_DIST)
 
-all: ldms
+all: hbasesink
 
-ldms:
-	javac -classpath "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/usr/hdp/2.2.4.2-2/flume/lib/*" $(LDMS_HBASE_SINK_FILES)
-	jar -cf $(LDMS_HBASE_SINK_JAR) org/apache/flume/sink/hbase/Ldms*.class
+hbasesink:
+	javac -classpath "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/usr/hdp/2.2.4.2-2/flume/lib/*" $(HBASE_SINK_FILES)
+	jar -cf $(HBASE_SINK_JAR) org/apache/flume/sink/hbase/*.class
 
 dist:
 	rm -rf flume-plugins-$(FLUME_VERSION)
@@ -30,8 +32,8 @@ dist:
 	tar -czvf flume-plugins-$(FLUME_VERSION).tar.gz flume-plugins-$(FLUME_VERSION)
 
 install:
-	mkdir -p $(DESTDIR)/usr/hdp/2.2.4.2-2/flume/plugins.d/ldms-sink/
-	cp $(LDMS_HBASE_SINK_JAR) $(DESTDIR)/usr/hdp/2.2.4.2-2/flume/plugins.d/ldms-sink
+	mkdir -p $(DESTDIR)$(HBASE_SINK_INSTALL_DIR)
+	cp $(HBASE_SINK_JAR) $(DESTDIR)$(HBASE_SINK_INSTALL_DIR)
 
 clean:
 	rm *.jar
