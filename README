@@ -41,3 +41,25 @@ Hbase shell.
 create 'mytable', {NAME => 'columnfamily1'}, {NAME => 'columnfamily2'}
 
 
+CSV Header Interceptor Plugin
+
+Parses the first line of a file indicating the headers for that CSV
+file and passes the string as an event header for processing by a
+sink.
+
+Configuration
+
+key: Key to use in static header insertion (default is "csvheader")
+
+preserveExisting: Whether to preserve an existing value for 'key'
+                  (default is true)
+
+file: File to retrieve header from (required)
+
+example config
+
+a1.sources.r1.interceptors = i1
+a1.sources.r1.interceptors.i1.type = org.apache.flume.interceptor.CSVHeaderInterceptor$Builder
+a1.sources.r1.interceptors.i1.key = csvheader
+a1.sources.r1.interceptors.i1.preserveExisting = true
+a1.sources.r1.interceptors.i1.file = /tmp/foobar
