@@ -1,5 +1,7 @@
 FLUME_VERSION = $(shell perl -ne 'print,exit if s/^\s*VERSION:\s*(\S*).*/\1/i' META)
 
+FLUME_CLASSPATH = "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/usr/hdp/2.2.4.2-2/flume/lib/*"
+
 HBASE_SINK_FILES = \
 	org/apache/flume/sink/hbase/LdmsHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsMeminfoHbaseEventSerializer.java \
@@ -22,7 +24,7 @@ DIST_FILES = \
 all: hbasesink
 
 hbasesink:
-	javac -classpath "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/usr/hdp/2.2.4.2-2/flume/lib/*" $(HBASE_SINK_FILES)
+	javac -classpath $(FLUME_CLASSPATH) $(HBASE_SINK_FILES)
 	jar -cf $(HBASE_SINK_JAR) org/apache/flume/sink/hbase/*.class
 
 dist:
