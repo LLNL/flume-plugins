@@ -3,6 +3,7 @@ FLUME_VERSION = $(shell perl -ne 'print,exit if s/^\s*VERSION:\s*(\S*).*/\1/i' M
 FLUME_CLASSPATH = "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/usr/hdp/2.2.4.2-2/flume/lib/*"
 
 HBASE_SINK_FILES = \
+	org/apache/flume/sink/hbase/CSVGenericHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsMeminfoHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsProcstatutilHbaseEventSerializer.java \

@@ -50,6 +50,43 @@ Hbase shell.
 
 create 'mytable', {NAME => 'columnfamily1'}, {NAME => 'columnfamily2'}
 
+CSV Generic Hbase Sink Plugin
+-----------------------------
+
+Row keys are presently defined as
+
+<sourcetype>-<clustername>-<local timestamp>
+
+The plugin requires three headers to be configured, 'csvheader' a
+comma separated list of headers (see CSV header interceptor below), a
+'clustername' indicating the name of the cluster and the 'sourcetype',
+a name indicating the source.  The latter can be virtually any term.
+
+The source would be configured like so (using ldms meminfo as an example):
+
+a1.sources.r1.type = exec
+a1.sources.r1.command = tail -F /tmp/ldms/store/node/meminfo
+a1.sources.r1.channels = c1
+a1.sources.r1.interceptors = i1 i2 i3
+a1.sources.r1.interceptors.i1.type = static
+a1.sources.r1.interceptors.i1.key = clustername
+a1.sources.r1.interceptors.i1.value = <the cluster name>
+a1.sources.r1.interceptors.i2.type = static
+a1.sources.r1.interceptors.i2.key = sourcetype
+a1.sources.r1.interceptors.i2.value = <ldms sourcetype>
+a1.sources.r1.interceptors.i3.type = org.apache.flume.interceptor.CSVHeaderInterceptor$Builder
+a1.sources.r1.interceptors.i3.key = csvheader
+a1.sources.r1.interceptors.i3.preserveExisting = true
+a1.sources.r1.interceptors.i3.file = /tmp/foobar
+
+and the sink would be configured as:
+
+a1.sinks.k1.type = hbase
+a1.sinks.k1.channel = c1
+a1.sinks.k1.table = <your table name>
+a1.sinks.k1.columnFamily = <your column family>
+a1.sinks.k1.serializer = org.apache.flume.sink.hbase.CSVGenericHbaseEventSerializer
+
 ----------------
 | Interceptors |
 ----------------
