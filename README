@@ -13,6 +13,11 @@ ldms-<sourcetype>-<clustername>-<timestamp>-<hostname>
 where sourcetype would be an identifier for the LDMS source, such as
 "meminfo".
 
+Each LDMS plugin requires two headers to be configured, a
+'clustername' indicating the name of the cluster and the 'sourcetype',
+a name indicating the source.  The latter can be virtually any term,
+although you more than likely will put in the name of the ldms file.
+
 The source would be configured like so (using ldms meminfo as an example):
 
 a1.sources.r1.type = exec
