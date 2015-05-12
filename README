@@ -1,4 +1,9 @@
+---------
+| Sinks |
+---------
+
 LDMS Hbase Sink Plugins
+-----------------------
 
 Presently supporting
 
@@ -45,8 +50,12 @@ Hbase shell.
 
 create 'mytable', {NAME => 'columnfamily1'}, {NAME => 'columnfamily2'}
 
+----------------
+| Interceptors |
+----------------
 
 CSV Header Interceptor Plugin
+-----------------------------
 
 Parses the first line of a file indicating the headers for that CSV
 file and passes the string as an event header for processing by a
