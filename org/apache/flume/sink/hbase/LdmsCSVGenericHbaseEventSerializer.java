@@ -34,11 +34,16 @@ public class LdmsCSVGenericHbaseEventSerializer extends LdmsHbaseEventSerializer
 
 	Map<String,String> headers = event.getHeaders();
 
-	if (!headers.containsKey(csvheader)) {
+	if (!headers.containsKey(csvheaderKey)) {
 	    throw new FlumeException("Event does not contain header '" + csvheaderKey + "'");
 	}
 
 	csvheader = headers.get(csvheaderKey);
+
+	// Remove '#' if necessary
+	if (csvheader.charAt(0) == '#') {
+	    csvheader = csvheader.substring(1, csvheader.length());
+	}
 
 	csvheaderfields = csvheader.split(", ");
 
@@ -67,8 +72,9 @@ public class LdmsCSVGenericHbaseEventSerializer extends LdmsHbaseEventSerializer
             String[] payloadSplits = payloadStr.split(", ");
 
 	    // csvheader check
-            if (!(payloadSplits.length != csvheaderfields.length)) {
-                throw new FlumeException("Number of fields in event = " + payloadSplits.length + " != fields in csv header = " + csvheaderfields.length);
+            if (payloadSplits.length != csvheaderfields.length) {
+                throw new FlumeException("Number of fields in event = " + payloadSplits.length
+					 + " != fields in csv header = " + csvheaderfields.length);
             }
 
             byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMS_INDEX_HOSTNAME]),
