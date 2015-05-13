@@ -21,11 +21,7 @@ public class LdmsProcstatutilHbaseEventSerializer extends LdmsHbaseEventSerializ
     // Only for columsn we're going to store, we don't use some
     // Sorta ugly, but avoid constant byte conversions later
 
-    final static private int LDMSPROCSTATUTILINDEXTIME = 0;
-    final static private int LDMSPROCSTATUTILINDEXHOSTNAME = 2;
-    final static private int LDMSPROCSTATUTILINDEXSTART = 3;
-
-    final static private byte[][] LDMSPROCSTATUTILCOLUMNS = {
+    final static private byte[][] LDMS_PROCSTATUTIL_COLUMNS = {
 	"guest-".getBytes(Charsets.UTF_8),
 	"steal-".getBytes(Charsets.UTF_8),
 	"softirq-".getBytes(Charsets.UTF_8),
@@ -54,31 +50,31 @@ public class LdmsProcstatutilHbaseEventSerializer extends LdmsHbaseEventSerializ
 	    String payloadStr = new String(this.payload, "UTF-8");
 	    String[] payloadSplits = payloadStr.split(", ");
 
-	    if (!(payloadSplits.length >= LDMSPROCSTATUTILINDEXSTART)) {
+	    if (!(payloadSplits.length >= LDMS_INDEX_FIRST_DATA)) {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
 	    }
 
-	    if (((payloadSplits.length - LDMSPROCSTATUTILINDEXSTART) % LDMSPROCSTATUTILCOLUMNS.length) != 0) {
+	    if (((payloadSplits.length - LDMS_INDEX_FIRST_DATA) % LDMS_PROCSTATUTIL_COLUMNS.length) != 0) {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
 	    }
 
-	    int numcpus = (payloadSplits.length - LDMSPROCSTATUTILINDEXSTART) / LDMSPROCSTATUTILCOLUMNS.length;
+	    int numcpus = (payloadSplits.length - LDMS_INDEX_FIRST_DATA) / LDMS_PROCSTATUTIL_COLUMNS.length;
 
-	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMSPROCSTATUTILINDEXHOSTNAME]),
-				       calcTimestamp(payloadSplits[LDMSPROCSTATUTILINDEXTIME]));
+	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMS_INDEX_HOSTNAME]),
+				       calcTimestamp(payloadSplits[LDMS_INDEX_TIME]));
 
 	    for (int i = 0; i < numcpus; i++) {
 		byte[] cpunum = String.format("%02d", numcpus - i - 1).getBytes(Charsets.UTF_8);
 
-		for (int j = 0; j < LDMSPROCSTATUTILCOLUMNS.length; j++) {
+		for (int j = 0; j < LDMS_PROCSTATUTIL_COLUMNS.length; j++) {
 		    Put put = new Put(rowKey);
 		    
-		    byte[] val = payloadSplits[LDMSPROCSTATUTILINDEXSTART + i*LDMSPROCSTATUTILCOLUMNS.length + j].getBytes(Charsets.UTF_8);
+		    byte[] val = payloadSplits[LDMS_INDEX_FIRST_DATA + i*LDMS_PROCSTATUTIL_COLUMNS.length + j].getBytes(Charsets.UTF_8);
 		    // This is probably really slow, any way to do this faster?
 		    // could calculate max field length and create buffer earlier, deal w/ later
-		    byte[] col = new byte[LDMSPROCSTATUTILCOLUMNS[j].length + cpunum.length];
-		    System.arraycopy(LDMSPROCSTATUTILCOLUMNS[j], 0, col, 0, LDMSPROCSTATUTILCOLUMNS[j].length);
-		    System.arraycopy(cpunum, 0, col, LDMSPROCSTATUTILCOLUMNS[j].length, cpunum.length);
+		    byte[] col = new byte[LDMS_PROCSTATUTIL_COLUMNS[j].length + cpunum.length];
+		    System.arraycopy(LDMS_PROCSTATUTIL_COLUMNS[j], 0, col, 0, LDMS_PROCSTATUTIL_COLUMNS[j].length);
+		    System.arraycopy(cpunum, 0, col, LDMS_PROCSTATUTIL_COLUMNS[j].length, cpunum.length);
 		    put.add(this.columnFamily, col, val);
 		    actions.add(put);
 		}

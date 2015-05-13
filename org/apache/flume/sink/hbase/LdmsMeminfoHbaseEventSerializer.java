@@ -17,16 +17,12 @@ public class LdmsMeminfoHbaseEventSerializer extends LdmsHbaseEventSerializer {
 
     */
 
-    final static private int LDMSMEMINFOLENGTH = 46;
+    final static private int LDMS_MEMINFO_LENGTH = 46;
 
     // Only for columsn we're going to store, we don't use some
     // Sorta ugly, but avoid constant byte conversions later
 
-    final static private int LDMSMEMINFOINDEXTIME = 0;
-    final static private int LDMSMEMINFOINDEXHOSTNAME = 2;
-    final static private int LDMSMEMINFOINDEXSTART = 3;
-
-    final static private byte[][] LDMSMEMINFOCOLUMNS = {
+    final static private byte[][] LDMS_MEMINFO_COLUMNS = {
 	"DirectMap1G".getBytes(Charsets.UTF_8),
 	"DirectMap2M".getBytes(Charsets.UTF_8),
 	"DirectMap4k".getBytes(Charsets.UTF_8),
@@ -89,18 +85,18 @@ public class LdmsMeminfoHbaseEventSerializer extends LdmsHbaseEventSerializer {
 	    String payloadStr = new String(this.payload, "UTF-8");
 	    String[] payloadSplits = payloadStr.split(", ");
 
-	    if (payloadSplits.length != LDMSMEMINFOLENGTH) {
+	    if (payloadSplits.length != LDMS_MEMINFO_LENGTH) {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
 	    }
 
-	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMSMEMINFOINDEXHOSTNAME]),
-				       calcTimestamp(payloadSplits[LDMSMEMINFOINDEXTIME]));
+	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMS_INDEX_HOSTNAME]),
+				       calcTimestamp(payloadSplits[LDMS_INDEX_TIME]));
 
-	    for (int i = 0; i < LDMSMEMINFOCOLUMNS.length; i++) {
+	    for (int i = 0; i < LDMS_MEMINFO_COLUMNS.length; i++) {
 		Put put = new Put(rowKey);
 
-		byte[] val = payloadSplits[LDMSMEMINFOINDEXSTART + i].getBytes(Charsets.UTF_8);
-		put.add(this.columnFamily, LDMSMEMINFOCOLUMNS[i], val);
+		byte[] val = payloadSplits[LDMS_INDEX_FIRST_DATA + i].getBytes(Charsets.UTF_8);
+		put.add(this.columnFamily, LDMS_MEMINFO_COLUMNS[i], val);
 		actions.add(put);
 	    }
 	} catch (Exception e) {

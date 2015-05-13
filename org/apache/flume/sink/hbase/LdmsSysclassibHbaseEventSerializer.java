@@ -20,11 +20,7 @@ public class LdmsSysclassibHbaseEventSerializer extends LdmsHbaseEventSerializer
     // Only for columsn we're going to store, we don't use some
     // Sorta ugly, but avoid constant byte conversions later
 
-    final static private int LDMSSYSCLASSIBINDEXTIME = 0;
-    final static private int LDMSSYSCLASSIBINDEXHOSTNAME = 2;
-    final static private int LDMSSYSCLASSIBINDEXSTART = 3;
-
-    final static private byte[][] LDMSSYSCLASSIBCOLUMNS = {
+    final static private byte[][] LDMS_SYSCLASSIB_COLUMNS = {
 	"ib.port_multicast_rcv_packets-".getBytes(Charsets.UTF_8),
 	"ib.port_multicast_xmit_packets-".getBytes(Charsets.UTF_8),
 	"ib.port_unicast_rcv_packets-".getBytes(Charsets.UTF_8),
@@ -66,33 +62,33 @@ public class LdmsSysclassibHbaseEventSerializer extends LdmsHbaseEventSerializer
 	    String payloadStr = new String(this.payload, "UTF-8");
 	    String[] payloadSplits = payloadStr.split(", ");
 
-	    if (!(payloadSplits.length >= LDMSSYSCLASSIBINDEXSTART)) {
+	    if (!(payloadSplits.length >= LDMS_INDEX_FIRST_DATA)) {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
 	    }
 
-	    if (((payloadSplits.length - LDMSSYSCLASSIBINDEXSTART) % LDMSSYSCLASSIBCOLUMNS.length) != 0) {
+	    if (((payloadSplits.length - LDMS_INDEX_FIRST_DATA) % LDMS_SYSCLASSIB_COLUMNS.length) != 0) {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
 	    }
 
 	    // This will not work for each cluster, don't know card or ib port, see LCMON-12
 
-	    int ibcards = (payloadSplits.length - LDMSSYSCLASSIBINDEXSTART) / LDMSSYSCLASSIBCOLUMNS.length;
+	    int ibcards = (payloadSplits.length - LDMS_INDEX_FIRST_DATA) / LDMS_SYSCLASSIB_COLUMNS.length;
 
-	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMSSYSCLASSIBINDEXHOSTNAME]),
-				       calcTimestamp(payloadSplits[LDMSSYSCLASSIBINDEXTIME]));
+	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMS_INDEX_HOSTNAME]),
+				       calcTimestamp(payloadSplits[LDMS_INDEX_TIME]));
 
 	    for (int i = 0; i < ibcards; i++) {
 		byte[] ibcard = Integer.toString(ibcards - i - 1).getBytes(Charsets.UTF_8);
 
-		for (int j = 0; j < LDMSSYSCLASSIBCOLUMNS.length; j++) {
+		for (int j = 0; j < LDMS_SYSCLASSIB_COLUMNS.length; j++) {
 		    Put put = new Put(rowKey);
 		    
-		    byte[] val = payloadSplits[LDMSSYSCLASSIBINDEXSTART + i*LDMSSYSCLASSIBCOLUMNS.length + j].getBytes(Charsets.UTF_8);
+		    byte[] val = payloadSplits[LDMS_INDEX_FIRST_DATA + i*LDMS_SYSCLASSIB_COLUMNS.length + j].getBytes(Charsets.UTF_8);
 		    // This is probably really slow, any way to do this faster?
 		    // could calculate max field length and create buffer earlier, deal w/ later
-		    byte[] col = new byte[LDMSSYSCLASSIBCOLUMNS[j].length + ibcard.length];
-		    System.arraycopy(LDMSSYSCLASSIBCOLUMNS[j], 0, col, 0, LDMSSYSCLASSIBCOLUMNS[j].length);
-		    System.arraycopy(ibcard, 0, col, LDMSSYSCLASSIBCOLUMNS[j].length, ibcard.length);
+		    byte[] col = new byte[LDMS_SYSCLASSIB_COLUMNS[j].length + ibcard.length];
+		    System.arraycopy(LDMS_SYSCLASSIB_COLUMNS[j], 0, col, 0, LDMS_SYSCLASSIB_COLUMNS[j].length);
+		    System.arraycopy(ibcard, 0, col, LDMS_SYSCLASSIB_COLUMNS[j].length, ibcard.length);
 		    put.add(this.columnFamily, col, val);
 		    actions.add(put);
 		}

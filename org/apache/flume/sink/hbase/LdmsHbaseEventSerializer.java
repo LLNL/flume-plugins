@@ -26,6 +26,11 @@ public class LdmsHbaseEventSerializer implements HbaseEventSerializer {
     protected byte[] columnFamily;
     protected byte[] payload;
 
+    final static protected int LDMS_INDEX_TIME = 0;
+    final static protected int LDMS_INDEX_TIMEUSEC = 1;
+    final static protected int LDMS_INDEX_HOSTNAME = 2;
+    final static protected int LDMS_INDEX_FIRST_DATA = 3;
+
     public LdmsHbaseEventSerializer(){
 
     }
