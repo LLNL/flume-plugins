@@ -16,54 +16,28 @@ import org.apache.hadoop.hbase.client.Row;
 
 import com.google.common.base.Charsets;
 
-public class CSVGenericHbaseEventSerializer implements HbaseEventSerializer {
-    final static String clusterNameKey = "clustername";
-    final static String sourceTypeKey = "sourcetype";
+public class LdmsCSVGenericHbaseEventSerializer extends LdmsHbaseEventSerializer {
     final static String csvheaderKey = "csvheader";
 
-    protected String clusterName;
-    protected String sourceType;
     protected String csvheader;
-
-    protected byte[] columnFamily;
-    protected byte[] payload;
 
     protected String[] csvheaderfields;
     protected byte[][] csvheaderfieldsBytes;
 
-    public CSVGenericHbaseEventSerializer(){
+    public LdmsCSVGenericHbaseEventSerializer(){
 
-    }
-
-    @Override
-    public void configure(Context context) {
-    }
-
-    @Override
-    public void configure(ComponentConfiguration conf) {
     }
 
     @Override
     public void initialize(Event event, byte[] columnFamily) throws FlumeException {
-	this.payload = event.getBody();
-	this.columnFamily = columnFamily;
+	super.initialize(event, columnFamily);
 
 	Map<String,String> headers = event.getHeaders();
-
-	if (!headers.containsKey(clusterNameKey)) {
-	    throw new FlumeException("Event does not contain header '" + clusterNameKey + "'");
-	}
-
-	if (!headers.containsKey(sourceTypeKey)) {
-	    throw new FlumeException("Event does not contain header '" + sourceTypeKey + "'");
-	}
 
 	if (!headers.containsKey(csvheader)) {
 	    throw new FlumeException("Event does not contain header '" + csvheaderKey + "'");
 	}
 
-	clusterName = headers.get(clusterNameKey);
-	sourceType = headers.get(sourceTypeKey);
 	csvheader = headers.get(csvheaderKey);
 
 	csvheaderfields = csvheader.split(", ");
@@ -79,8 +53,6 @@ public class CSVGenericHbaseEventSerializer implements HbaseEventSerializer {
 	} 
     }
 
-
-    // Basic implementation assuming the most trivial commit
     @Override
     public List<Row> getActions() throws FlumeException {
 	List<Row> actions = new LinkedList<Row>();
@@ -99,12 +71,14 @@ public class CSVGenericHbaseEventSerializer implements HbaseEventSerializer {
                 throw new FlumeException("Number of fields in event = " + payloadSplits.length + " != fields in csv header = " + csvheaderfields.length);
             }
 
-	    byte[] rowKey = (this.sourceType + "-" + this.clusterName + "-" + String.valueOf(System.currentTimeMillis())).getBytes("UTF8");
+            byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMS_INDEX_HOSTNAME]),
+                                       calcTimestamp(payloadSplits[LDMS_INDEX_TIME]));
 
-	    for (int i = 0; i < payloadSplits.length; i++) {
+	    for (int i = LDMS_INDEX_FIRST_DATA; i < payloadSplits.length; i++) {
 		Put put = new Put(rowKey);
 
-		put.add(this.columnFamily, csvheaderfieldsBytes[i], payload);
+		byte[] val = payloadSplits[i].getBytes(Charsets.UTF_8);
+                put.add(this.columnFamily, csvheaderfieldsBytes[i], val);
 		actions.add(put);
 	    }
 	} catch (Exception e) {
@@ -112,15 +86,5 @@ public class CSVGenericHbaseEventSerializer implements HbaseEventSerializer {
 	}
 	    
 	return actions;
-    }
-
-    @Override
-    public List<Increment> getIncrements(){
-	List<Increment> incs = new LinkedList<Increment>();
-	return incs;
-    }
-
-    @Override
-    public void close() {
     }
 }

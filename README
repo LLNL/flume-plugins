@@ -50,17 +50,23 @@ Hbase shell.
 
 create 'mytable', {NAME => 'columnfamily1'}, {NAME => 'columnfamily2'}
 
-CSV Generic Hbase Sink Plugin
------------------------------
+LDMS CSV Generic Hbase Sink Plugin
+----------------------------------
+
+Generic LDMS plugin that requires three headers to be configured,
+'csvheader' a comma separated list of headers (see CSV header
+interceptor below), a 'clustername' indicating the name of the cluster
+and the 'sourcetype', a name indicating the source.  The latter can be
+virtually any term.
+
+The csv headers are assumed to have LDMS pattern of first three fields
+being "Time, Time_usec, CompId".
 
 Row keys are presently defined as
 
-<sourcetype>-<clustername>-<local timestamp>
+ldms-<sourcetype>-<clustername>-<timestamp>-<hostname>
 
-The plugin requires three headers to be configured, 'csvheader' a
-comma separated list of headers (see CSV header interceptor below), a
-'clustername' indicating the name of the cluster and the 'sourcetype',
-a name indicating the source.  The latter can be virtually any term.
+The remaining fields in the CSV headers are used for column names.
 
 The source would be configured like so (using ldms meminfo as an example):
 
@@ -85,7 +91,7 @@ a1.sinks.k1.type = hbase
 a1.sinks.k1.channel = c1
 a1.sinks.k1.table = <your table name>
 a1.sinks.k1.columnFamily = <your column family>
-a1.sinks.k1.serializer = org.apache.flume.sink.hbase.CSVGenericHbaseEventSerializer
+a1.sinks.k1.serializer = org.apache.flume.sink.hbase.LdmsCSVGenericHbaseEventSerializer
 
 ----------------
 | Interceptors |
