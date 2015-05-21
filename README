@@ -113,6 +113,12 @@ preserveExisting: Whether to preserve an existing value for 'key'
 
 file: File to retrieve header from (required)
 
+period: In seconds, period in which to check if headers in file have
+        changed.  Predominantly useful if headers are in a separate
+        file, instead of the file that also includes data.  Specify 0
+        to check on every event and -1 to never check. (default is -1)
+
+
 example config
 
 a1.sources.r1.interceptors = i1

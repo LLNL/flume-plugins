@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.flume.Context;
 import org.apache.flume.Event;
@@ -33,6 +34,12 @@ import static org.apache.flume.interceptor.CSVHeaderInterceptor.Constants.*;
  *
  *   file: File to retrieve header from (required)
  *
+ *   period: In seconds, period in which to check if headers in file
+ *           have changed.  Predominantly useful if headers are in a
+ *           separate file, instead of the file that also includes
+ *           data.  Specify 0 to check on every event and -1 to never
+ *           check. (default is -1)
+ *
  * Sample config:
  *
  *   a1.sources.r1.interceptors = i1
@@ -49,16 +56,28 @@ public class CSVHeaderInterceptor implements Interceptor {
 
   private final boolean preserveExisting;
   private final String key;
-  private final String value;
+  private final String file;
+  private String value;
+  private int period;
+  private long nextheaderscan;
 
   /**
    * Only {@link HostInterceptor.Builder} can build me
    */
   private CSVHeaderInterceptor(boolean preserveExisting, String key,
-      String value) {
+			       String value, String file, int period) {
     this.preserveExisting = preserveExisting;
     this.key = key;
     this.value = value;
+    this.file = file;
+    this.period = period;
+    if (period > 0) {
+	calcNextheaderscan();
+    }
+  }
+
+  private void calcNextheaderscan() {
+      this.nextheaderscan = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(period);
   }
 
   @Override
@@ -75,6 +94,17 @@ public class CSVHeaderInterceptor implements Interceptor {
 
     if (preserveExisting && headers.containsKey(key)) {
       return event;
+    }
+
+    if (period >= 0) {
+	if (period == 0 || System.currentTimeMillis() > this.nextheaderscan) {
+	    String tmpValue = readHeader(file);
+	    if (tmpValue != value) {
+		logger.debug(String.format("New CSV Header for file %s = %s", file, value));
+		value = tmpValue;
+	    }
+	    calcNextheaderscan();
+	}
     }
 
     if (value != null) {
@@ -101,6 +131,23 @@ public class CSVHeaderInterceptor implements Interceptor {
     // no-op
   }
 
+  private static String readHeader(String file) throws FlumeException {
+      try {
+	  BufferedReader headerfile = new BufferedReader(new FileReader(file));
+	  String value = headerfile.readLine();
+	  logger.debug(String.format("CSV Header for file %s = %s", file, value));
+	  return value;
+      }
+      catch (FileNotFoundException e) {
+	  logger.error(String.format("CSVHeaderInterceptor - file not found = %s", file));
+	  throw new FlumeException(String.format("CSVHeaderInterceptor - file not found = %s", file));
+      }
+      catch (Exception e) {
+	  logger.error(String.format("CSVHeaderInterceptor - IO exception, file = %s", file));
+	  throw new FlumeException(String.format("CSVHeaderInterceptor - IO exception, file = %s", file));
+      }
+  }
+
   /**
    * Builder which builds new instance of the CSVHeaderInterceptor.
    */
@@ -110,26 +157,16 @@ public class CSVHeaderInterceptor implements Interceptor {
     private String key;
     private String file;
     private String value;
+    private Integer period;
 
     @Override
     public void configure(Context context) throws FlumeException {
       preserveExisting = context.getBoolean(PRESERVE, PRESERVE_DEFAULT);
       key = context.getString(KEY, KEY_DEFAULT);
       file = context.getString(FILE);
+      period = context.getInteger(PERIOD, new Integer(PERIOD_DEFAULT));
       if (file != null) {
-	  try {
-	    BufferedReader headerfile = new BufferedReader(new FileReader(file));
-	    value = headerfile.readLine();
-	    logger.debug(String.format("CSV Header for file %s = %s", file, value));
-	  }
-	  catch (FileNotFoundException e) {
-	    logger.error(String.format("CSVHeaderInterceptor - file not found = %s", file));
-	    throw new FlumeException(String.format("CSVHeaderInterceptor - file not found = %s", file));
-	  }
-	  catch (Exception e) {
-	    logger.error(String.format("CSVHeaderInterceptor - IO exception, file = %s", file));
-	    throw new FlumeException(String.format("CSVHeaderInterceptor - IO exception, file = %s", file));
-	  }
+	  value = readHeader(file);
       }
       else {
 	logger.error("CSVHeaderInterceptor - file not specified");
@@ -140,9 +177,9 @@ public class CSVHeaderInterceptor implements Interceptor {
     @Override
     public Interceptor build() {
       logger.info(String.format(
-          "Creating CSVHeaderInterceptor: preserveExisting=%s,key=%s,value=%s",
-          preserveExisting, key, value));
-      return new CSVHeaderInterceptor(preserveExisting, key, value);
+          "Creating CSVHeaderInterceptor: preserveExisting=%s,key=%s,value=%s,period=%s",
+          preserveExisting, key, value, file, period.intValue()));
+      return new CSVHeaderInterceptor(preserveExisting, key, value, file, period);
     }
 
 
@@ -155,6 +192,9 @@ public class CSVHeaderInterceptor implements Interceptor {
 
     public static final String PRESERVE = "preserveExisting";
     public static final boolean PRESERVE_DEFAULT = true;
+
+    public static final String PERIOD = "period";
+    public static final int PERIOD_DEFAULT = -1;
 
     public static final String FILE = "file";
   }
