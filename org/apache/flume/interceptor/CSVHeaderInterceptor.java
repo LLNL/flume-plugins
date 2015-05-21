@@ -98,10 +98,15 @@ public class CSVHeaderInterceptor implements Interceptor {
 
     if (period >= 0) {
 	if (period == 0 || System.currentTimeMillis() > this.nextheaderscan) {
-	    String tmpValue = readHeader(file);
-	    if (tmpValue != value) {
-		logger.debug(String.format("New CSV Header for file %s = %s", file, value));
-		value = tmpValue;
+	    try {
+		String tmpValue = readHeader(file);
+		if (tmpValue != value) {
+		    logger.debug(String.format("New CSV Header for file %s = %s", file, value));
+		    value = tmpValue;
+		}
+	    }
+	    catch (FlumeException e) {
+		logger.error(String.format("Error reading new CSV Header, keeping old one = %s", value));
 	    }
 	    calcNextheaderscan();
 	}
