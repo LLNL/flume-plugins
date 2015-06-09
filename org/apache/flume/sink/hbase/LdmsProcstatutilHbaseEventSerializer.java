@@ -41,8 +41,7 @@ public class LdmsProcstatutilHbaseEventSerializer extends LdmsHbaseEventSerializ
     public List<Row> getActions() throws FlumeException {
 	List<Row> actions = new LinkedList<Row>();
 
-	// Small chance this is the header
-	if (this.payload[0] == '#') {
+	if (payloadValid() == false) {
 	    return actions;
 	}
 

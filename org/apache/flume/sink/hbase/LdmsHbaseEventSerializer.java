@@ -68,8 +68,7 @@ public class LdmsHbaseEventSerializer implements HbaseEventSerializer {
     public List<Row> getActions() throws FlumeException {
 	List<Row> actions = new LinkedList<Row>();
 
-	// Small chance this is the header
-	if (payload[0] == '#') {
+	if (payloadValid() == false) {
 	    return actions;
 	}
 
@@ -96,6 +95,20 @@ public class LdmsHbaseEventSerializer implements HbaseEventSerializer {
 
     @Override
     public void close() {
+    }
+
+    protected boolean payloadValid() {
+	// Small chance line is empty
+	if (this.payload.length == 0) {
+	    return false;
+	}
+
+	// Small chance this is the header
+	if (this.payload[0] == '#') {
+	    return false;
+	}
+
+	return true;
     }
 
     protected String calcHostname(String hostNameInt) {
