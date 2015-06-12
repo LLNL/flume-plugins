@@ -1,0 +1,222 @@
+#!/bin/bash
+
+if [ "${JAVA_HOME}X" = "X" ]; then
+    export JAVA_HOME="/usr/lib/jvm/jre-1.6.0-sun.x86_64/"
+fi
+
+if [ "${JAVA_OPTS}X" = "X" ]; then
+    export JAVA_OPTS="-Xms1024m -Xmx1024m -Dcom.sun.management.jmxremote"
+fi 
+
+if [ "${FLUME_HOME}X" = "X" ]; then 
+    export FLUME_HOME="/usr/hdp/2.2.4.2-2/flume/"
+fi
+
+function print_usage(){
+    echo "Usage: flume-send-file --file <filetosend> --type <datatype> [OPTIONS]"
+    echo "  datatype             The format this data is stored in:"
+    echo "                       - ldmsmeminfo"
+    echo "                       - ldmsprocstatutil"
+    echo "                       - ldmssysclassib"
+    echo "  --cluster <string>   Cluster you are running on (default determined via genders)"
+    echo "  --host <string>      Host to send to (default = ???)" 
+    echo "  --port <num>         Port to connect to (default = ???)"
+    echo "  --flumehome <path>   Path to flume (default = ${FLUME_HOME})"
+    echo "  --javahome <path>    Java home (default = ${JAVA_HOME}"
+    echo "  --javaopts <string>  Java opts (default = ${JAVA_OPTS}"
+    echo "  --tmp <path>         Temporary scratch space (default = /tmp/username)"
+    echo "  --dryrun             Do not run flume, only output what would be executed" 
+    exit 1
+}
+
+opt_file=""
+opt_type=""
+opt_cluster=""
+opt_host=""
+opt_port=""
+opt_tmp="/tmp/${USER}"
+opt_dryrun=""
+
+args=""
+while [ -n "$*" ] ; do
+    arg=$1
+    shift
+
+    case "$arg" in
+	--file|-f)
+	    [ -n "$1" ] || { echo "Option --file requires argument"; exit 1; }
+	    opt_file=$1
+	    shift
+	    ;;
+	--type|-t)
+	    [ -n "$1" ] || { echo "Option --type requires argument"; exit 1; }
+	    opt_type=$1
+	    shift
+	    ;;
+	--cluster)
+	    [ -n "$1" ] || { echo "Option --cluster requires argument"; exit 1; }
+	    opt_cluster=$1
+	    shift
+	    ;;
+	--host)
+	    [ -n "$1" ] || { echo "Option --host requires argument"; exit 1; }
+	    opt_host=$1
+	    shift
+	    ;;
+	--port)
+	    [ -n "$1" ] || { echo "Option --port requires argument"; exit 1; }
+	    opt_port=$1
+	    shift
+	    ;;
+	--flumehome)
+	    [ -n "$1" ] || { echo "Option --flumehome requires argument"; exit 1; }
+	    export FLUME_HOME=$1
+	    shift
+	    ;;
+	--javahome)
+	    [ -n "$1" ] || { echo "Option --javahome requires argument"; exit 1; }
+	    export JAVA_HOME=$1
+	    shift
+	    ;;
+	--javaopts)
+	    [ -n "$1" ] || { echo "Option --javaopts requires argument"; exit 1; }
+	    export JAVA_OPTS=$1
+	    shift
+	    ;;
+	--tmp)
+	    [ -n "$1" ] || { echo "Option --tmp requires argument"; exit 1; }
+	    opt_tmp=$1
+	    shift
+	    ;;
+	--dryrun)
+	    opt_dryrun="true"
+	    ;;
+	*)
+	    echo "Unknown option $arg"
+	    print_usage	  
+	    ;;
+    esac
+done
+
+if [ -z "${opt_file}" ]; then
+    echo "--file must be specified"
+    print_usage
+    exit 1
+fi
+
+if [ ! -f "${opt_file}" ]; then
+    echo "${opt_file} must be a regular file"
+    exit 1
+fi
+
+if [ -z "${opt_type}" ]; then
+    echo "--type must be specified"
+    print_usage
+    exit 1
+fi
+
+if [ "${opt_type}" != "ldmsmeminfo" ] \
+    && [ "${opt_type}" != "ldmsprocstatutil" ] \
+    && [ "${opt_type}" != "ldmssysclassib" ]; then
+    echo "Type '${opt_type}' for --type invalid"
+    print_usage
+    exit 1
+fi
+    
+if [ -z "${opt_cluster}" ]; then
+    opt_cluster=`nodeattr -v cluster`
+    if [ -z "${opt_cluster}" ]; then
+	echo "Cannot determine cluster via genders, please specify via --cluster"
+	exit 1
+    fi
+fi
+
+# XXX Make a default mechanism later, via genders or config file or what
+if [ -z "${opt_host}" ]; then
+    echo "--host must be specified"
+    exit 1
+fi
+
+if [ -z "${opt_port}" ]; then
+    echo "--port must be specified"
+    exit 1
+fi
+
+if [ ! -d ${FLUME_HOME} ]; then
+    echo "Flume home '${FLUME_HOME}' does not point to a directory"
+    exit 1
+fi
+
+flumeng="${FLUME_HOME}/bin/flume-ng"
+flumeconf="${FLUME_HOME}/conf"
+
+if [ ! -x ${flumeng} ]; then
+    echo "flume-ng at '${flumeng}' not executable"
+    exit 1
+fi
+
+if [ ! -d ${flumeconf} ]; then
+    echo "flume conf dir at '${flumeconf}' not a directory"
+    exit 1
+fi
+
+if [ ! -d ${JAVA_HOME} ]; then
+    echo "Java home '${JAVA_HOME}' does not point to a directory"
+    exit 1
+fi
+
+if [ ! -x "${JAVA_HOME}/bin/java" ]; then
+    echo "java at '${JAVA_HOME}/bin/java' not executable"
+    exit 1
+fi
+
+if [ ! -e ${opt_tmp} ]; then
+    mkdir -p ${opt_tmp}
+    if [ $? -ne 0 ]; then
+	echo "Failed to make tmp directory '${opt_tmp}'"
+	exit 1
+    fi
+fi
+
+if [ ! -d ${opt_tmp} ]; then
+    echo "tmp directory '${opt_tmp}' does not point to a directory"
+    exit 1
+fi
+
+tmpdir="${opt_tmp}/flumetmp"
+
+mkdir -p ${tmpdir}
+if [ $? -ne 0 ]; then
+    echo "Failed to make tmp directory '${tmpdir}'"
+    exit 1
+fi
+
+# Lets create headers file
+# 
+# Want format
+# clustername=cluster
+# sourcetype=type
+
+dataheaders="${tmpdir}/flumesendfile.HEADERS"
+
+rm -f ${dataheaders}
+if [ $? -ne 0 ]; then
+    echo "Failed to remove tmp file '${dataheaders}'"
+    exit 1
+fi
+
+echo "clustername=${opt_cluster}" >> ${dataheaders}
+echo "sourcetype=${opt_type}" >> ${dataheaders}
+
+# Basic command example: flume-ng avro-client --conf conf -H 134.9.50.108 -p 32987 -F mydata -R mydata.HEADERS
+
+flumecmd="${flumeng} avro-client --conf ${flumeconf} -H ${opt_host} -p ${opt_port} -F ${opt_file} -R ${dataheaders}"
+
+echo "flumecmd = ${flumecmd}"
+
+if [ -z "${opt_dryrun}" ]; then
+    echo "Launching flume to send data, this may take awhile depending on the size of the data ..."
+    ${flumecmd}
+fi
+
+exit 0
