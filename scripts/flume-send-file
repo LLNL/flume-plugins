@@ -14,10 +14,12 @@ fi
 
 function print_usage(){
     echo "Usage: flume-send-file --file <filetosend> --type <datatype> [OPTIONS]"
-    echo "  datatype             The format this data is stored in:"
-    echo "                       - ldmsmeminfo"
-    echo "                       - ldmsprocstatutil"
-    echo "                       - ldmssysclassib"
+    echo "  --file <filetosend>  File you wish to send (REQUIRED)"
+    echo "  --type <datatype>    Type of the data (REQUIRED)"
+    echo "                         <datatype> can be:"
+    echo "                         - ldmsmeminfo"
+    echo "                         - ldmsprocstatutil"
+    echo "                         - ldmssysclassib"
     echo "  --cluster <string>   Cluster you are running on (default determined via genders)"
     echo "  --host <string>      Host to send to (default = ???)" 
     echo "  --port <num>         Port to connect to (default = ???)"
