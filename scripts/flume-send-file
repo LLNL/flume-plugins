@@ -14,20 +14,22 @@ fi
 
 function print_usage(){
     echo "Usage: flume-send-file --file <filetosend> --type <datatype> [OPTIONS]"
-    echo "  --file <filetosend>  File you wish to send (REQUIRED)"
-    echo "  --type <datatype>    Type of the data (REQUIRED)"
-    echo "                         <datatype> can be:"
-    echo "                         - ldmsmeminfo"
-    echo "                         - ldmsprocstatutil"
-    echo "                         - ldmssysclassib"
-    echo "  --cluster <string>   Cluster you are running on (default determined via genders)"
-    echo "  --host <string>      Host to send to (default = ???)" 
-    echo "  --port <num>         Port to connect to (default = ???)"
-    echo "  --flumehome <path>   Path to flume (default = ${FLUME_HOME})"
-    echo "  --javahome <path>    Java home (default = ${JAVA_HOME}"
-    echo "  --javaopts <string>  Java opts (default = ${JAVA_OPTS}"
-    echo "  --tmp <path>         Temporary scratch space (default = /tmp/username)"
-    echo "  --dryrun             Do not run flume, only output what would be executed" 
+    echo "  --file <filetosend>     File you wish to send (REQUIRED)"
+    echo "  --type <datatype>       Type of the data (REQUIRED)"
+    echo "                             <datatype> can be:"
+    echo "                             - ldmscsvgeneric"
+    echo "                             - ldmsmeminfo"
+    echo "                             - ldmsprocstatutil"
+    echo "                             - ldmssysclassib"
+    echo "  --cluster <string>      Cluster you are running on (default determined via genders)"
+    echo "  --host <string>         Host to send to (default = ???)" 
+    echo "  --port <num>            Port to connect to (default = ???)"
+    echo "  --csvheaderfile <path>  If --type is ldmscsvgeneric, specify file with CSV field names" 
+    echo "  --flumehome <path>      Path to flume (default = ${FLUME_HOME})"
+    echo "  --javahome <path>       Java home (default = ${JAVA_HOME}"
+    echo "  --javaopts <string>     Java opts (default = ${JAVA_OPTS}"
+    echo "  --tmp <path>            Temporary scratch space (default = /tmp/username)"
+    echo "  --dryrun                Do not run flume, only output what would be executed" 
     exit 1
 }
 
@@ -36,6 +38,7 @@ opt_type=""
 opt_cluster=""
 opt_host=""
 opt_port=""
+opt_csvheaderfile=""
 opt_tmp="/tmp/${USER}"
 opt_dryrun=""
 
@@ -68,6 +71,11 @@ while [ -n "$*" ] ; do
 	--port)
 	    [ -n "$1" ] || { echo "Option --port requires argument"; exit 1; }
 	    opt_port=$1
+	    shift
+	    ;;
+	--csvheaderfile)
+	    [ -n "$1" ] || { echo "Option --csvheaderfile requires argument"; exit 1; }
+	    opt_csvheaderfile=$1
 	    shift
 	    ;;
 	--flumehome)
@@ -117,12 +125,25 @@ if [ -z "${opt_type}" ]; then
     exit 1
 fi
 
-if [ "${opt_type}" != "ldmsmeminfo" ] \
+if [ "${opt_type}" != "ldmscsvgeneric" ] \
+    && [ "${opt_type}" != "ldmsmeminfo" ] \
     && [ "${opt_type}" != "ldmsprocstatutil" ] \
     && [ "${opt_type}" != "ldmssysclassib" ]; then
     echo "Type '${opt_type}' for --type invalid"
     print_usage
     exit 1
+fi
+
+if [ "${opt_type}" = "ldmscsvgeneric" ]; then
+    if [ -z "${opt_csvheaderfile}" ]; then
+	echo "For --type of '${opt_type}', --csvheaderfile must be specified"
+	exit 1
+    fi
+
+    if [ ! -f "${opt_csvheaderfile}" ]; then
+	echo "${opt_csvheaderfile} must be a regular file"
+	exit 1
+    fi
 fi
     
 if [ -z "${opt_cluster}" ]; then
@@ -198,6 +219,8 @@ fi
 # Want format
 # clustername=cluster
 # sourcetype=type
+#
+# w/ extras as needed
 
 dataheaders="${tmpdir}/flumesendfile.HEADERS"
 
@@ -209,6 +232,11 @@ fi
 
 echo "clustername=${opt_cluster}" >> ${dataheaders}
 echo "sourcetype=${opt_type}" >> ${dataheaders}
+
+if [ "${opt_type}" = "ldmscsvgeneric" ]; then
+    csvheaderdata=`head -1 ${opt_csvheaderfile}` 
+    echo "csvheader=${csvheaderdata}" >> ${dataheaders}
+fi
 
 # Basic command example: flume-ng avro-client --conf conf -H 134.9.50.108 -p 32987 -F mydata -R mydata.HEADERS
 
