@@ -101,6 +101,9 @@ while [ -n "$*" ] ; do
 	--dryrun)
 	    opt_dryrun="true"
 	    ;;
+	--help|-h)
+	    print_usage
+	    ;;
 	*)
 	    echo "Unknown option $arg"
 	    print_usage	  
