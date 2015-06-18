@@ -1,5 +1,5 @@
 Name:           	flume-plugins
-Version:        	1.0.1
+Version:        	1.0.2
 Release:        	1%{?dist}
 Summary:        	Apache Flume Plugins
 
@@ -37,3 +37,4 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root)
 %{flumeplugindir}/*
+%{_bindir}/*

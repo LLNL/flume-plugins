@@ -20,6 +20,11 @@ INTERCEPTOR_JAR = HbaseInterceptor.jar
 
 INTERCEPTOR_INSTALL_DIR = /usr/hdp/2.2.4.2-2/flume/plugins.d/interceptor/
 
+SCRIPTS_DIST = \
+	scripts/flume-send-file
+
+SCRIPTS_INSTALL_DIR = /usr/bin
+
 EXTRA_DIST = \
 	META \
 	Makefile \
@@ -28,6 +33,7 @@ EXTRA_DIST = \
 DIST_FILES = \
 	$(HBASE_SINK_FILES) \
 	$(INTERCEPTOR_FILES) \
+	$(SCRIPTS_DIST) \
 	$(EXTRA_DIST)
 
 all: hbasesink interceptor
@@ -48,11 +54,13 @@ dist:
 
 install:
 	mkdir -p $(DESTDIR)$(HBASE_SINK_INSTALL_DIR)
-	cp $(HBASE_SINK_JAR) $(DESTDIR)$(HBASE_SINK_INSTALL_DIR)
+	install -m 744 $(HBASE_SINK_JAR) $(DESTDIR)$(HBASE_SINK_INSTALL_DIR)
 	mkdir -p $(DESTDIR)$(INTERCEPTOR_INSTALL_DIR)
-	cp $(INTERCEPTOR_JAR) $(DESTDIR)$(INTERCEPTOR_INSTALL_DIR)
+	install -m 744 $(INTERCEPTOR_JAR) $(DESTDIR)$(INTERCEPTOR_INSTALL_DIR)
+	mkdir -p $(DESTDIR)$(SCRIPTS_INSTALL_DIR)
+	install -m 755 $(SCRIPTS_DIST) $(DESTDIR)$(SCRIPTS_INSTALL_DIR)
 
 clean:
-	rm *.jar
-	rm org/apache/flume/sink/hbase/*.class
-	rm org/apache/flume/interceptor/*.class
+	rm -f *.jar
+	rm -f org/apache/flume/sink/hbase/*.class
+	rm -f org/apache/flume/interceptor/*.class
