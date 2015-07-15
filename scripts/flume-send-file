@@ -65,8 +65,8 @@ function print_usage(){
     echo "  --port <num>            Port to connect to (default = ???)"
     echo "  --csvheaderfile <path>  If --type is ldmscsvgeneric, specify file with CSV field names" 
     echo "  --flumehome <path>      Path to flume (default = ${FLUME_HOME})"
-    echo "  --javahome <path>       Java home (default = ${JAVA_HOME}"
-    echo "  --javaopts <string>     Java opts (default = ${JAVA_OPTS}"
+    echo "  --javahome <path>       Java home (default = ${JAVA_HOME})"
+    echo "  --javaopts <string>     Java opts (default = ${JAVA_OPTS})"
     echo "  --tmp <path>            Temporary scratch space (default = /tmp/username)"
     echo "  --dryrun                Do not run flume, only output what would be executed" 
     exit 1
