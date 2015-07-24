@@ -1,6 +1,8 @@
 FLUME_VERSION = $(shell perl -ne 'print,exit if s/^\s*VERSION:\s*(\S*).*/\1/i' META)
 
-FLUME_CLASSPATH = "/usr/hdp/2.2.0.0-2041/hbase/lib/*:/usr/hdp/2.2.4.2-2/flume/lib/*"
+HBASE_CLASSPATH = $(shell hbase classpath)
+
+FLUME_CLASSPATH = "$(HBASE_CLASSPATH):/usr/hdp/2.2.6.0-2800/flume/lib/*"
 
 HBASE_SINK_FILES = \
 	org/apache/flume/sink/hbase/LdmsCSVGenericHbaseEventSerializer.java \
