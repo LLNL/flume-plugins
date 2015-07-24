@@ -82,6 +82,7 @@ public class LdmsCSVGenericHbaseEventSerializer extends LdmsHbaseEventSerializer
 	// Remove '#' if necessary
 	if (csvheader.charAt(0) == '#') {
 	    csvheader = csvheader.substring(1, csvheader.length());
+	    csvheader = csvheader.trim();
 	}
 
 	csvheaderfields = csvheader.split(", ");
