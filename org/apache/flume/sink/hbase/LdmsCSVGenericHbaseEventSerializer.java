@@ -85,7 +85,7 @@ public class LdmsCSVGenericHbaseEventSerializer extends LdmsHbaseEventSerializer
 	    csvheader = csvheader.trim();
 	}
 
-	csvheaderfields = csvheader.split(", ");
+	csvheaderfields = csvheader.split("\\s*[, ]\\s*");
 
 	if (csvheaderfields.length == 0) {
 	    throw new FlumeException("Event csvheader is empty");
@@ -108,7 +108,7 @@ public class LdmsCSVGenericHbaseEventSerializer extends LdmsHbaseEventSerializer
 
 	try {
 	    String payloadStr = new String(this.payload, "UTF-8");
-            String[] payloadSplits = payloadStr.split(", ");
+            String[] payloadSplits = payloadStr.split("\\s*[, ]\\s*");
 
 	    // csvheader check
             if (payloadSplits.length != csvheaderfields.length) {

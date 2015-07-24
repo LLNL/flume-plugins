@@ -121,7 +121,7 @@ public class LdmsMeminfoHbaseEventSerializer extends LdmsHbaseEventSerializer {
 
 	try {
 	    String payloadStr = new String(this.payload, "UTF-8");
-	    String[] payloadSplits = payloadStr.split(", ");
+	    String[] payloadSplits = payloadStr.split("\\s*[, ]\\s*");
 
 	    if (payloadSplits.length != LDMS_MEMINFO_LENGTH) {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);

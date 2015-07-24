@@ -86,7 +86,7 @@ public class LdmsProcstatutilHbaseEventSerializer extends LdmsHbaseEventSerializ
 
 	try {
 	    String payloadStr = new String(this.payload, "UTF-8");
-	    String[] payloadSplits = payloadStr.split(", ");
+	    String[] payloadSplits = payloadStr.split("\\s*[, ]\\s*");
 
 	    if (!(payloadSplits.length >= LDMS_INDEX_FIRST_DATA)) {
 		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
