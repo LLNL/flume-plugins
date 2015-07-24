@@ -5,6 +5,7 @@ HBASE_CLASSPATH = $(shell hbase classpath)
 FLUME_CLASSPATH = "$(HBASE_CLASSPATH):/usr/hdp/2.2.6.0-2800/flume/lib/*"
 
 HBASE_SINK_FILES = \
+	org/apache/flume/sink/hbase/CSVGenericHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsCSVGenericHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsMeminfoHbaseEventSerializer.java \

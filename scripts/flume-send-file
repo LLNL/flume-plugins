@@ -56,6 +56,7 @@ function print_usage(){
     echo "  --file <filetosend>     File you wish to send (REQUIRED)"
     echo "  --type <datatype>       Type of the data (REQUIRED)"
     echo "                             <datatype> can be:"
+    echo "                             - csvgeneric"
     echo "                             - ldmscsvgeneric"
     echo "                             - ldmsmeminfo"
     echo "                             - ldmsprocstatutil"
@@ -63,7 +64,7 @@ function print_usage(){
     echo "  --cluster <string>      Cluster you are running on (default determined via genders)"
     echo "  --host <string>         Host to send to (default = ???)" 
     echo "  --port <num>            Port to connect to (default = ???)"
-    echo "  --csvheaderfile <path>  If --type is ldmscsvgeneric, specify file with CSV field names" 
+    echo "  --csvheaderfile <path>  If --type is csvgeneric or ldmscsvgeneric, specify file with CSV field names" 
     echo "  --flumehome <path>      Path to flume (default = ${FLUME_HOME})"
     echo "  --javahome <path>       Java home (default = ${JAVA_HOME})"
     echo "  --javaopts <string>     Java opts (default = ${JAVA_OPTS})"
@@ -167,7 +168,8 @@ if [ -z "${opt_type}" ]; then
     exit 1
 fi
 
-if [ "${opt_type}" != "ldmscsvgeneric" ] \
+if [ "${opt_type}" != "csvgeneric" ] \
+    && [ "${opt_type}" != "ldmscsvgeneric" ] \
     && [ "${opt_type}" != "ldmsmeminfo" ] \
     && [ "${opt_type}" != "ldmsprocstatutil" ] \
     && [ "${opt_type}" != "ldmssysclassib" ]; then
@@ -176,7 +178,7 @@ if [ "${opt_type}" != "ldmscsvgeneric" ] \
     exit 1
 fi
 
-if [ "${opt_type}" = "ldmscsvgeneric" ]; then
+if [ "${opt_type}" = "ldmscsvgeneric" ] || [ "${opt_type}" = "csvgeneric" ]; then
     if [ -z "${opt_csvheaderfile}" ]; then
 	echo "For --type of '${opt_type}', --csvheaderfile must be specified"
 	exit 1
@@ -275,7 +277,7 @@ fi
 echo "clustername=${opt_cluster}" >> ${dataheaders}
 echo "sourcetype=${opt_type}" >> ${dataheaders}
 
-if [ "${opt_type}" = "ldmscsvgeneric" ]; then
+if [ "${opt_type}" = "csvgeneric" ] || [ "${opt_type}" = "ldmscsvgeneric" ]; then
     csvheaderdata=`head -1 ${opt_csvheaderfile}` 
     echo "csvheader=${csvheaderdata}" >> ${dataheaders}
 fi
