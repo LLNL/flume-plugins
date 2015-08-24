@@ -9,6 +9,7 @@ HBASE_SINK_FILES = \
 	org/apache/flume/sink/hbase/LdmsCSVGenericHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsMeminfoHbaseEventSerializer.java \
+	org/apache/flume/sink/hbase/LdmsProcnetdevHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsProcstatutilHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsProcstatutil2HbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsSysclassibHbaseEventSerializer.java
