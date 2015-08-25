@@ -10,10 +10,10 @@ Source0:        	%{name}-%{version}.tar.gz
 BuildArch:      	noarch
 
 BuildRequires:  	java-devel >= 1:1.6.0
-BuildRequires:  	flume_2_2_4_2_2
+#BuildRequires:  	flume_2_2_4_2_2
 Requires:       	java >= 1:1.6.0
-Requires:       	flume_2_2_4_2_2
-Requires:       	hbase_2_2_0_0_2041
+#Requires:       	flume_2_2_4_2_2
+#Requires:       	hbase_2_2_0_0_2041
 
 %define flumeplugindir  /var/lib/flume
 
