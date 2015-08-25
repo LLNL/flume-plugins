@@ -15,7 +15,7 @@ Requires:       	java >= 1:1.6.0
 Requires:       	flume_2_2_4_2_2
 Requires:       	hbase_2_2_0_0_2041
 
-%define flumeplugindir  /usr/hdp/2.2.4.2-2/flume/plugins.d
+%define flumeplugindir  /var/lib/flume
 
 %description
 This package includes a collection of plugins for Apache Flume.

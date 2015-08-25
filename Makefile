@@ -14,14 +14,14 @@ HBASE_SINK_FILES = \
 
 HBASE_SINK_JAR = HbaseEventSerializer.jar
 
-HBASE_SINK_INSTALL_DIR = /usr/hdp/2.2.4.2-2/flume/plugins.d/hbase-sink/
+HBASE_SINK_INSTALL_DIR = /var/lib/flume/plugins.d/hbase-sink/
 
 INTERCEPTOR_FILES = \
 	org/apache/flume/interceptor/CSVHeaderInterceptor.java
 
 INTERCEPTOR_JAR = HbaseInterceptor.jar
 
-INTERCEPTOR_INSTALL_DIR = /usr/hdp/2.2.4.2-2/flume/plugins.d/interceptor/
+INTERCEPTOR_INSTALL_DIR = /var/lib/flume/plugins.d/interceptor/
 
 SCRIPTS_DIST = \
 	scripts/flume-send-file
