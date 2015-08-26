@@ -48,7 +48,7 @@ import org.apache.hadoop.hbase.client.Row;
 
 import com.google.common.base.Charsets;
 
-public class LdmsMeminfoHbaseEventSerializer extends LdmsHbaseEventSerializer {
+public class LdmsMeminfoHbaseEventSerializer extends LdmsFixedformatHbaseEventSerializer {
     /*
       LDMS MemInfo Fields
 
@@ -113,34 +113,6 @@ public class LdmsMeminfoHbaseEventSerializer extends LdmsHbaseEventSerializer {
 
     @Override
     public List<Row> getActions() throws FlumeException {
-	List<Row> actions = new LinkedList<Row>();
-
-	if (payloadValid() == false) {
-	    return actions;
-	}
-
-	try {
-	    String payloadStr = new String(this.payload, "UTF-8");
-	    String[] payloadSplits = payloadStr.split("\\s*[, ]\\s*");
-
-	    if (payloadSplits.length != LDMS_MEMINFO_LENGTH) {
-		throw new FlumeException("Invalid number of payload splits " + payloadSplits.length);
-	    }
-
-	    byte[] rowKey = calcRowkey(calcHostname(payloadSplits[LDMS_INDEX_HOSTNAME]),
-				       calcTimestamp(payloadSplits[LDMS_INDEX_TIME]));
-
-	    for (int i = 0; i < LDMS_MEMINFO_COLUMNS.length; i++) {
-		Put put = new Put(rowKey);
-
-		byte[] val = payloadSplits[LDMS_INDEX_FIRST_DATA + i].getBytes(Charsets.UTF_8);
-		put.add(this.columnFamily, LDMS_MEMINFO_COLUMNS[i], val);
-		actions.add(put);
-	    }
-	} catch (Exception e) {
-	    throw new FlumeException("Could not put in row!", e);
-	}
-	    
-	return actions;
+	return FixedformatgetActions(LDMS_MEMINFO_COLUMNS, LDMS_MEMINFO_LENGTH);
     }
 }

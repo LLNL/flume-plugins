@@ -50,7 +50,7 @@ import com.google.common.base.Charsets;
 
 public class LdmsFixedformatHbaseEventSerializer extends LdmsHbaseEventSerializer {
 
-    public List<Row> FixedFormatgetActions(byte[][] fieldColumns, int fieldLength) throws FlumeException {
+    public List<Row> FixedformatgetActions(byte[][] fieldColumns, int fieldLength) throws FlumeException {
 	List<Row> actions = new LinkedList<Row>();
 
 	if (payloadValid() == false) {
