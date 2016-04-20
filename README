@@ -93,6 +93,17 @@ a1.sinks.k1.table = <your table name>
 a1.sinks.k1.columnFamily = <your column family>
 a1.sinks.k1.serializer = org.apache.flume.sink.hbase.LdmsCSVGenericHbaseEventSerializer
 
+Slurm Job Log Hbase Sink Plugin
+-------------------------------
+
+Handles Slurm Job Logs, typically of the format
+
+JobId=1841909 UserId=achu(4299) Name=myjob JobState=COMPLETED Partition=pbatch TimeLimit=1320 StartTime=2016-03-12T15:04:03 EndTime=2016-03-12T16:17:27 NodeList=mycluster[239-251,253-289] NodeCnt=50 Procs=1200
+
+The plugin has been programmed to generically work with Key=Value
+pairs, so if the format of the job log has changed, it presumably
+still work.
+
 ----------------
 | Interceptors |
 ----------------

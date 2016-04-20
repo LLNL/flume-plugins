@@ -15,7 +15,8 @@ HBASE_SINK_FILES = \
 	org/apache/flume/sink/hbase/LdmsProcstatutilHbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsProcstatutil2HbaseEventSerializer.java \
 	org/apache/flume/sink/hbase/LdmsSysclassibHbaseEventSerializer.java \
-	org/apache/flume/sink/hbase/LdmsVmstatHbaseEventSerializer.java
+	org/apache/flume/sink/hbase/LdmsVmstatHbaseEventSerializer.java \
+	org/apache/flume/sink/hbase/SlurmJobLogHbaseEventSerializer.java
 
 HBASE_SINK_JAR = HbaseEventSerializer.jar
 
