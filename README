@@ -102,7 +102,7 @@ JobId=1841909 UserId=achu(4299) Name=myjob JobState=COMPLETED Partition=pbatch T
 
 The plugin has been programmed to generically work with Key=Value
 pairs, so if the format of the job log has changed, it presumably
-still work.
+should still work.
 
 ----------------
 | Interceptors |
